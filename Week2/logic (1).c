@@ -161,57 +161,57 @@ struct pt {
 #define PT_EXIT(pt) do { return 0; } while(0)
 
 // Encrypt a message using the PT_Encrypt thread
-int PT_Encrypt(struct pt *pt, const char *input, char *output) {
-    PT_BEGIN(pt);
+// int PT_Encrypt(struct pt *pt, const char *input, char *output) {
+//     PT_BEGIN(pt);
     
-    int encrypt_idx = 0;
-    memset(output, '\0', 256);
+//     int encrypt_idx = 0;
+//     memset(output, '\0', 256);
     
-    while (input[encrypt_idx] != '\0') {
-        // Skip non-alphabetic characters
-        if (!isalpha(input[encrypt_idx])) {
-            output[encrypt_idx] = input[encrypt_idx];
-            encrypt_idx++;
-            continue;
-        }
+//     while (input[encrypt_idx] != '\0') {
+//         // Skip non-alphabetic characters
+//         if (!isalpha(input[encrypt_idx])) {
+//             output[encrypt_idx] = input[encrypt_idx];
+//             encrypt_idx++;
+//             continue;
+//         }
         
-        int res;
-        // Apply plugboard to the input character
-        res = plug_swap(char_to_index(input[encrypt_idx]));
+//         int res;
+//         // Apply plugboard to the input character
+//         res = plug_swap(char_to_index(input[encrypt_idx]));
         
-        // Advance the rotors before encryption (once per character)
-        spin_rotors();
+//         // Advance the rotors before encryption (once per character)
+//         spin_rotors();
         
-        // Through the rotors from right to left
-        res = rotor_r_to_l(res, 0); // Right rotor
-        res = rotor_r_to_l(res, 1); // Middle rotor
-        res = rotor_r_to_l(res, 2); // Left rotor
+//         // Through the rotors from right to left
+//         res = rotor_r_to_l(res, 0); // Right rotor
+//         res = rotor_r_to_l(res, 1); // Middle rotor
+//         res = rotor_r_to_l(res, 2); // Left rotor
         
-        // Through the reflector
-        res = reflect(res);
+//         // Through the reflector
+//         res = reflect(res);
         
-        // Back through the rotors from left to right
-        res = rotor_l_to_r(res, 2); // Left rotor
-        res = rotor_l_to_r(res, 1); // Middle rotor
-        res = rotor_l_to_r(res, 0); // Right rotor
+//         // Back through the rotors from left to right
+//         res = rotor_l_to_r(res, 2); // Left rotor
+//         res = rotor_l_to_r(res, 1); // Middle rotor
+//         res = rotor_l_to_r(res, 0); // Right rotor
         
-        // Apply plugboard again
-        res = plug_swap(res);
+//         // Apply plugboard again
+//         res = plug_swap(res);
         
-        // Store the result
-        output[encrypt_idx] = index_to_char(res);
+//         // Store the result
+//         output[encrypt_idx] = index_to_char(res);
         
-        encrypt_idx++;
+//         encrypt_idx++;
         
-        // Yield to allow other threads to run
-        PT_YIELD_TIME_msec(pt, 1000);
-    }
+//         // Yield to allow other threads to run
+//         PT_YIELD_TIME_msec(pt, 1000);
+//     }
     
-    // Terminate the thread
-    PT_EXIT(pt);
+  //  // Terminate the thread
+//     PT_EXIT(pt);
     
-    PT_END(pt);
-}
+//     PT_END(pt);
+// }
 
 // Simple encrypt character function (without threading)
 char encrypt_char(char c) {
@@ -243,24 +243,26 @@ char encrypt_char(char c) {
 void encrypt_message(const char *input, char *output) {
     int i = 0;
     while (input[i] != '\0') {
-            //checking for the case of whitespace and asking for plugboard change
-            if(input[i] == ' '){
-                output[i] = ' ';
-                printf("You have entered space. Update plugboard? (Y/N: )");
-                scanf("%c", &choice);
+        // Check for space character
+        if (input[i] == ' ') {
+            output[i] = ' ';
+            printf("You have entered space. Update plugboard? (Y/N): ");
 
-                if(toupper(choice) == 'Y'){
-                    printf("Enter new plugboard pairing: ");
-                    getchar();
-                    fgets(new_config, sizeof(new_config), stdin);
-                    initialize_plugboard(new_config);
-                } else{
-                    continue;
-                }
+            char choice;
+            scanf(" %c", &choice);  // Added space before %c to consume leftover newline
 
-                i++;
-                continue;
+            if (toupper(choice) == 'Y') {
+                printf("Enter new plugboard pairing: ");
+                char new_config[100];  // Assuming max length
+                getchar();  // Consume leftover newline
+                fgets(new_config, sizeof(new_config), stdin);
+                initialize_plugboard(new_config);
             }
+
+            i++;
+            continue;
+        }
+
         output[i] = encrypt_char(input[i]);
         i++;
     }
