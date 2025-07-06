@@ -8,8 +8,11 @@ The project is developed both as a software simulator and a hardware replica, of
 
 Mentors :
 Kshitij Bhardwaj
+
 Tanvi Manhas
+
 Kamal Jaiswal
+
 Shrasti Dwivedi
 ---
 
